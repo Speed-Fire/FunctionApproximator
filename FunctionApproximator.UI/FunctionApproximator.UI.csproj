@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\app-icon32.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\add24.png" />
+    <Resource Include="Assets\app-icon32.png" />
+    <Resource Include="Assets\bin24.png" />
+    <Resource Include="Assets\copy24.png" />
+    <Resource Include="Assets\delete24.png" />
+    <Resource Include="Assets\eraser24.png" />
+    <Resource Include="Assets\light-bulb-off32.png" />
+    <Resource Include="Assets\light-bulb-on32.png" />
+    <Resource Include="Assets\openFolder24.png" />
+    <Resource Include="Assets\plot-graph24.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Themes\Styles.Shared.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+</Project>

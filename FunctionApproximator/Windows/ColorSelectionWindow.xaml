@@ -1,0 +1,131 @@
+﻿<Window x:Class="FunctionApproximator.Windows.ColorSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FunctionApproximator.Windows"
+        xmlns:controls="clr-namespace:FunctionApproximator.UI.Controls;assembly=FunctionApproximator.UI"
+        mc:Ignorable="d"
+        
+        x:Name="ColorWindow"
+        
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        WindowStartupLocation="CenterScreen"
+        Height="140" Width="320">
+
+    <Window.Resources>
+
+        <Style TargetType="Button" BasedOn="{StaticResource Styles.Buttons.Color}">
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="MinWidth" Value="40"/>
+        </Style>
+
+        <Path x:Key="Local.Paths.Cross"
+              Data="M 0,0 14,14 M 14,0 0,14"
+              Stroke="{StaticResource Gray700Brush}"/>
+
+        <Style x:Key="Local.Styles.Buttons.Close" TargetType="controls:NormalButton">
+
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="15 5 15 5"/>
+            <Setter Property="Background" Value="#D50000"/>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#FF5151"/>
+                </Trigger>
+            </Style.Triggers>
+
+        </Style>
+
+    </Window.Resources>
+    
+    <Grid Background="{StaticResource Gray200Brush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.RowSpan="3" 
+                BorderThickness="2 1 2 2"
+                BorderBrush="{StaticResource Gray500Brush}"/>
+
+        <Grid MinHeight="32"
+              MouseMove="Grid_MouseMove">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <Image Source="{StaticResource Bitmaps.App32}" Height="32"/>
+
+            <TextBlock Grid.Column="1"
+                       FontSize="18"
+                       Margin="5 0 0 0"
+                       VerticalAlignment="Center"
+                       Text="{Binding ElementName=ColorWindow, Path=Title}"/>
+
+            <controls:NormalButton
+                Grid.Column="3"
+                Style="{StaticResource Local.Styles.Buttons.Close}"
+                Content="{StaticResource Local.Paths.Cross}"
+                Click="Exit"/>
+
+        </Grid>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.3*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="0.1*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="0.1*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="0.1*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="0.1*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="0.3*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="1" x:Name="Btn0"
+                    Background="LightGreen"
+                    Height="{Binding ElementName=Btn0, Path=ActualWidth}"
+                    Click="SelectColor"/>
+
+            <Button Grid.Column="3" x:Name="Btn1"
+                    Background="OrangeRed"
+                    Height="{Binding ElementName=Btn0, Path=ActualWidth}"
+                    Click="SelectColor"/>
+
+            <Button Grid.Column="5" x:Name="Btn2"
+                    Background="Gold"
+                    Height="{Binding ElementName=Btn0, Path=ActualWidth}"
+                    Click="SelectColor"/>
+
+            <Button Grid.Column="7" x:Name="Btn3"
+                    Background="CadetBlue"
+                    Height="{Binding ElementName=Btn0, Path=ActualWidth}"
+                    Click="SelectColor"/>
+
+            <Button Grid.Column="9" x:Name="Btn4"
+                    Background="BlueViolet"
+                    Height="{Binding ElementName=Btn0, Path=ActualWidth}"
+                    Click="SelectColor"/>
+        </Grid>
+
+        <controls:NormalButton Grid.Row="2"
+                               Background="DarkViolet"
+                               Content="Save"
+                               Padding="8 2 8 2"
+                               Margin="0 0 5 5"
+                               HorizontalAlignment="Right"
+                               Click="Save"/>
+
+    </Grid>
+    
+</Window>

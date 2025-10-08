@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <ApplicationIcon>app-icon32.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="app-icon32.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FunctionApproximator.Domain\FunctionApproximator.Domain.csproj" />
+    <ProjectReference Include="..\FunctionApproximator.UI\FunctionApproximator.UI.csproj" />
+    <ProjectReference Include="..\OxyPlotCustom\OxyPlot.Wpf\OxyPlot.Wpf.csproj" />
+  </ItemGroup>
+
+	<Target Name="CopyNativeBinaries" AfterTargets="Build">
+		<ItemGroup>
+			<NativeDlls Include="..\x64\$(Configuration)\ApproximationLib.dll" />
+		</ItemGroup>
+		<Copy SourceFiles="@(NativeDlls)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+	</Target>
+
+</Project>

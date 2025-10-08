@@ -1,0 +1,13 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        
+        <ResourceDictionary Source="/FunctionApproximator.UI;component/Controls/AdvancedTextBox/AdvancedTextBox.xaml"/>
+        <ResourceDictionary Source="/FunctionApproximator.UI;component/Controls/NormalButton/NormalButton.xaml"/>
+        <ResourceDictionary Source="/FunctionApproximator.UI;component/Controls/AdvancedComboBox/AdvancedComboBox.xaml"/>
+
+    </ResourceDictionary.MergedDictionaries>
+
+</ResourceDictionary>

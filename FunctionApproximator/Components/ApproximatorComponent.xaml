@@ -1,0 +1,87 @@
+﻿<UserControl x:Class="FunctionApproximator.Components.ApproximatorComponent"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FunctionApproximator.Components"
+             xmlns:controls="clr-namespace:FunctionApproximator.UI.Controls;assembly=FunctionApproximator.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <GroupBox Header="Approximator settings"
+              Padding="10">
+
+        <Grid>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="8"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Approximator:"/>
+
+                <controls:AdvancedComboBox Grid.Row="2"
+                          HorizontalAlignment="Left"
+                          MaxWidth="250"
+                          Style="{StaticResource Styles.ComboBox}"
+                          ItemsSource="{Binding Approximators}"
+                          SelectedItem="{Binding SelectedApproximator}"/>
+
+                <TextBlock Grid.Column="1"
+                           Text="Degree of the polynomial:"/>
+
+                <controls:AdvancedTextBox
+                    Grid.Row="2" Grid.Column="1"
+                    Width="40"
+                    HorizontalAlignment="Left"
+                    Text="{Binding PolynomialDegree}"
+                    PreviewKeyDown="TextBox_PreviewKeyDown"
+                    PreviewTextInput="TextBox_PreviewTextInput"/>
+
+            </Grid>
+
+            <Grid Grid.Row="1"
+                  Margin="0 15 0 0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="8"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Polynom:"/>
+
+                <controls:AdvancedTextBox
+                    Grid.Row="2"
+                    IsReadOnly="True"
+                    MaxLength="300"
+                    Text="{Binding PolynomRepresentation}"/>
+
+                <controls:NormalButton
+                    Grid.Row="2" Grid.Column="1"
+                    Style="{StaticResource Styles.Buttons.Iconic}"
+                    Command="{Binding CopyRepresentationCommand}">
+                    <Image Source="{StaticResource Bitmaps.Copy24}" Height="24"/>
+                </controls:NormalButton>
+
+            </Grid>
+            
+        </Grid>
+        
+    </GroupBox>
+    
+</UserControl>
