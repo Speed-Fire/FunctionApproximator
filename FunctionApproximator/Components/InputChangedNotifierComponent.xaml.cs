@@ -18,15 +18,23 @@ using System.Windows.Shapes;
 
 namespace FunctionApproximator.Components
 {
+    public record PlotError(string Message);
+
     /// <summary>
     /// Логика взаимодействия для InputChangedNotifierComponent.xaml
     /// </summary>
-    public partial class InputChangedNotifierComponent : UserControl, IRecipient<GraphAccordanceChanged>
+    public partial class InputChangedNotifierComponent : 
+        UserControl,
+        IRecipient<GraphAccordanceChanged>,
+		IRecipient<ChangeErrorMessage>
     {
-        private static DoubleAnimation _turnOnAnimation = new(0, 1, new(TimeSpan.FromSeconds(0.15)));
-        private static DoubleAnimation _turnOffAnimation = new(1, 0, new(TimeSpan.FromSeconds(0.15)));
+        private static readonly DoubleAnimation _turnOnAnimation = new(0, 1, new(TimeSpan.FromSeconds(0.15)));
+        private static readonly DoubleAnimation _turnOffAnimation = new(1, 0, new(TimeSpan.FromSeconds(0.15)));
 
         private bool _currentBulbState = false;
+        private bool _currentErrorBulbState = false;
+
+        private readonly List<PlotError> _plotErrors = [];
 
         public InputChangedNotifierComponent()
         {
@@ -36,6 +44,8 @@ namespace FunctionApproximator.Components
 
             LightBulb.Opacity = 0;
             AttentionText.Opacity = 0;
+            ErrorLightBulb.Opacity = 0;
+            ErrorText.Opacity = 0;
         }
 
         private void TurnLight(bool isOn)
@@ -45,21 +55,81 @@ namespace FunctionApproximator.Components
 
             if (isOn)
             {
-                LightBulb.BeginAnimation(Control.OpacityProperty, _turnOnAnimation);
-                AttentionText.BeginAnimation(Control.OpacityProperty, _turnOnAnimation);
+                TurnOn([LightBulb, AttentionText]);
 			}
             else
             {
-				LightBulb.BeginAnimation(Control.OpacityProperty, _turnOffAnimation);
-				AttentionText.BeginAnimation(Control.OpacityProperty, _turnOffAnimation);
+				TurnOff([LightBulb, AttentionText]);
 			}
 
             _currentBulbState = isOn;
         }
 
+        private void TurnOn(UIElement[] controls)
+        {
+            foreach(var control in controls)
+            {
+                control.BeginAnimation(Control.OpacityProperty, _turnOnAnimation);
+            }
+        }
+
+		private void TurnOff(UIElement[] controls)
+		{
+			foreach (var control in controls)
+			{
+				control.BeginAnimation(Control.OpacityProperty, _turnOffAnimation);
+			}
+		}
+
+		private void AddError(PlotError error)
+        {
+            if (!_plotErrors.Contains(error))
+                _plotErrors.Add(error);
+            UpdateErrorBulb();
+		}
+
+        private void RemoveError(PlotError error)
+        {
+            _plotErrors.Remove(error);
+            UpdateErrorBulb();
+
+		}
+
+        private void UpdateErrorBulb()
+        {
+            var error = _plotErrors.FirstOrDefault();
+            if(error is null)
+            {
+                if (_currentErrorBulbState)
+                {
+                    TurnOff([ErrorLightBulb, ErrorText]);
+                    ErrorText.Text = string.Empty;
+                    _currentErrorBulbState = false;
+                }
+            }
+            else
+            {
+                if(error.Message != ErrorText.Text)
+                {
+					TurnOff([ErrorLightBulb, ErrorText]);
+                    ErrorText.Text = error.Message;
+					TurnOn([ErrorLightBulb, ErrorText]);
+                    _currentErrorBulbState = true;
+				}
+            }
+        }
+
 		void IRecipient<GraphAccordanceChanged>.Receive(GraphAccordanceChanged message)
 		{
 			TurnLight(message.Value);
+		}
+
+		void IRecipient<ChangeErrorMessage>.Receive(ChangeErrorMessage message)
+		{
+			if(message.IsRemove)
+                RemoveError(message.Value);
+            else
+                AddError(message.Value);
 		}
 	}
 }

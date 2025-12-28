@@ -1,7 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using FunctionApproximator.Approximators;
 using FunctionApproximator.Domain.Interfaces;
+using FunctionApproximator.Messages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,7 +14,9 @@ using System.Windows;
 
 namespace FunctionApproximator.ViewModels
 {
-    public partial class ApproximatorVM : ObservableValidator
+    public partial class ApproximatorVM : 
+		ObservableValidator,
+		IRecipient<RequestPolynomDegreeMessage>
     {
         public List<IFunctionApproximator> Approximators { get; } = [
 			new LeastSquareApproximator()
@@ -32,11 +36,19 @@ namespace FunctionApproximator.ViewModels
 		public ApproximatorVM()
 		{
 			SelectedApproximator = Approximators[0];
+			WeakReferenceMessenger.Default.RegisterAll(this);
 		}
 
 		partial void OnPolynomialDegreeChanged(string value)
 		{
-			SelectedApproximator!.PolynomialDegree = int.Parse(value);
+			if(int.TryParse(value, out var degree))
+			{
+				SelectedApproximator!.PolynomialDegree = degree;
+			}
+			else
+			{
+				PolynomialDegree = "1";
+			}
 		}
 
 		partial void OnSelectedApproximatorChanged(
@@ -74,6 +86,11 @@ namespace FunctionApproximator.ViewModels
 		{
 			SelectedApproximator.Clear();
 			PolynomRepresentation = string.Empty;
+		}
+
+		void IRecipient<RequestPolynomDegreeMessage>.Receive(RequestPolynomDegreeMessage message)
+		{
+			message.Reply(int.Parse(PolynomialDegree));
 		}
 	}
 }

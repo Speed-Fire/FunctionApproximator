@@ -13,6 +13,12 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="15"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
         <Image Source="{StaticResource Bitmaps.LightOff32}" Width="32"/>
 
         <Image x:Name="LightBulb"
@@ -23,6 +29,18 @@
                    TextWrapping="Wrap"
                    Margin="10 0 0 0"
                    Text="Attention! Input data was changed. Please replot the graph."/>
+
+        <Image Grid.Row="2"
+               Source="{StaticResource Bitmaps.LightOff32}" Width="32"/>
+
+        <Image x:Name="ErrorLightBulb" Grid.Row="2"
+               Source="{StaticResource Bitmaps.LightOn32}" Width="32"/>
+
+        <TextBlock Grid.Column="1" Grid.Row="2" x:Name="ErrorText"
+                   Foreground="Red"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap"
+                   Margin="10 0 0 0"/>
 
     </Grid>
 </UserControl>

@@ -6,6 +6,7 @@ using FunctionApproximator.Helpers;
 using FunctionApproximator.Messages;
 using OxyPlot;
 using OxyPlot.Axes;
+using OxyPlot.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,7 +58,10 @@ namespace FunctionApproximator
 			_approximatedGraphSeries = new CustomLineSeries();
 			_inputGraphSeries = new CustomLineSeries
 			{
-				IsVisible = false
+				IsVisible = false,
+				MarkerType = MarkerType.Diamond,
+				MarkerSize = 6,
+				LineStyle = LineStyle.None
 			};
 			
 			_model.Series.Add(_approximatedGraphSeries);
@@ -100,6 +104,18 @@ namespace FunctionApproximator
 		}
 
 		#endregion
+
+		public void Zoom(double minX, double maxX, double minY, double maxY)
+		{
+			double dx = (maxX - minX) * 0.1;
+			double dy = (maxY - minY) * 0.1;
+
+			var xAxis = Model.Axes.First(a => a.Position == AxisPosition.Bottom);
+			var yAxis = Model.Axes.First(a => a.Position == AxisPosition.Left);
+
+			xAxis.Zoom(minX - dx, maxX + dx);
+			yAxis.Zoom(minY - dy, maxY + dy);
+		}
 
 		public void DrawGraphs(ReadOnlyMemory<double> inputData,
 			ReadOnlyMemory<double> approximatedData)

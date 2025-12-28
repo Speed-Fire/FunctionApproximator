@@ -1,6 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using FunctionApproximator.Components;
 using FunctionApproximator.Extensions;
+using FunctionApproximator.Messages;
 using FunctionApproximator.Misc;
 using Microsoft.Win32;
 using System;
@@ -42,6 +45,8 @@ namespace FunctionApproximator.ViewModels
 
     public partial class PointsInputVM : ObservableObject
     {
+		private static readonly PlotError _sameXError = new("You have points with the same X.");
+
         [ObservableProperty]
         private ObservableCollection<Point> _points = [];
 
@@ -146,7 +151,7 @@ namespace FunctionApproximator.ViewModels
             var points = new double[Points.Count * 2];
 
             var i = 0;
-            foreach (var point in Points)
+            foreach (var point in Points.OrderBy(p => p.X))
             {
                 points[i] = double.Parse(point.X);
                 points[i + 1] = double.Parse(point.Y);
@@ -156,10 +161,26 @@ namespace FunctionApproximator.ViewModels
             return points;
         }
 
+		public (double minX, double maxX, double minY, double maxY) GetInputPointsWindow()
+		{
+			var minX = Points.Select(p => double.Parse(p.X)).Min();
+			var maxX = Points.Select(p => double.Parse(p.X)).Max();
+			var minY = Points.Select(p => double.Parse(p.Y)).Min();
+			var maxY = Points.Select(p => double.Parse(p.Y)).Max();
+
+			return (minX, maxX, minY, maxY);
+		}
+			
         private void UpdateDataReadyness()
         {
-            var val = Points.Count >= 2 && !Points.Any(x => x.HasErrors);
-			IsDataReady = val;
+			var val =
+				Points.Count >= 2 &&
+				!Points.Any(x => x.HasErrors);
+
+			var hasSameX = Points.DistinctBy(p => p.X).Count() != Points.Count;
+			WeakReferenceMessenger.Default.Send(new ChangeErrorMessage(_sameXError, !hasSameX));
+
+			IsDataReady = val && !hasSameX;
         }
 
 		private bool SelectFile(out string file)

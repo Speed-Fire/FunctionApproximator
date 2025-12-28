@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using FunctionApproximator.Components;
 using FunctionApproximator.GraphSeries;
 using FunctionApproximator.Messages;
 using FunctionApproximator.ViewModels;
@@ -21,6 +22,8 @@ namespace FunctionApproximator
 {
 	unsafe partial class MainVM : ObservableObject
     {
+		private static readonly PlotError _polynomDegreeError = new("Your polynom degree can't be higher than count of points.");
+
 		public AdaptivePlotModel PlotModel { get; } = new();
 		public PointsInputVM PointsInput { get; } = new();
 		public ApproximatorVM Approximator { get; } = new();
@@ -36,6 +39,15 @@ namespace FunctionApproximator
 			PlotModel.ModelWindowBordersChanged += PlotModel_ModelWindowBordersChanged;
 			PointsInput.PropertyChanged += PointsInput_PropertyChanged;
 			PointsInput.InputDataChanged += OnInputDataChanged;
+			PointsInput.Points.CollectionChanged += (sndr, e) =>
+			{
+				OnDataReadynessChanged();
+			};
+			Approximator.PropertyChanged += (sndr, e) =>
+			{
+				if(e.PropertyName == nameof(Approximator.PolynomialDegree))
+					OnDataReadynessChanged();
+			};
 		}
 
 		#region Commands
@@ -64,6 +76,8 @@ namespace FunctionApproximator
 			// draw graphs
 			var step = DrawingSettings.GetDrawingStep(left, right);
 			var res = Approximator.DrawGraph(left, right, step);
+			var (minX, maxX, minY, maxY) = PointsInput.GetInputPointsWindow();
+			PlotModel.Zoom(minX, maxX, minY, maxY);
 			PlotModel.DrawGraphs(data, res);
 
 			IsPlotted = true;
@@ -72,7 +86,16 @@ namespace FunctionApproximator
 
 		private bool CanPlotGraphExecute()
 		{
-			return PointsInput.IsDataReady && !Approximator.HasErrors;
+			if (int.TryParse(Approximator.PolynomialDegree, out var polDegree))
+			{
+				var isValidPolDegree = PointsInput.Points.Count >= polDegree;
+				WeakReferenceMessenger.Default.Send(new ChangeErrorMessage(_polynomDegreeError,
+					isValidPolDegree));
+
+				return PointsInput.IsDataReady && !Approximator.HasErrors && isValidPolDegree;
+			}
+			else
+				return false;
 		}
 
 		#endregion
