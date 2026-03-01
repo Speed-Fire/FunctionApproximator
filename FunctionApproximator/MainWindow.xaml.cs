@@ -21,7 +21,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         WindowHelper.Init(this);
-        DataContext = new MainVM();
+        DataContext = new ViewModels.MainVM();
         InitializeComponent();
     }
 }

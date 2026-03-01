@@ -20,10 +20,10 @@ namespace FunctionApproximator.Components
 {
     public record PlotError(string Message);
 
-    /// <summary>
-    /// Логика взаимодействия для InputChangedNotifierComponent.xaml
-    /// </summary>
-    public partial class InputChangedNotifierComponent : 
+	/// <summary>
+	/// Логика взаимодействия для NotificationsComponent.xaml
+	/// </summary>
+	public partial class NotificationsComponent : 
         UserControl,
         IRecipient<GraphAccordanceChanged>,
 		IRecipient<ChangeErrorMessage>
@@ -36,7 +36,7 @@ namespace FunctionApproximator.Components
 
         private readonly List<PlotError> _plotErrors = [];
 
-        public InputChangedNotifierComponent()
+        public NotificationsComponent()
         {
             InitializeComponent();
 

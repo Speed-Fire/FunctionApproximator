@@ -8,12 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FunctionApproximator.VMsNew
+namespace FunctionApproximator.ViewModels
 {
 	internal partial class PointDataVM : ObservableObject
 	{
 		private readonly ObservableCollection<PointVM> _points = [];
 		public ObservableCollection<PointVM> Points => _points;
+
+		public event Action? PointsChanged;
 
 		[ObservableProperty]
 		private int _pointCount;
@@ -39,12 +41,15 @@ namespace FunctionApproximator.VMsNew
 		private void CreatePoint()
 		{
 			AddPoint("0", "0");
+			HasSameX = _points.DistinctBy(p => p.X).Count() != _points.Count;
+			PointsChanged?.Invoke();
 		}
 
 		[RelayCommand]
 		private void DeletePoint(PointVM point)
 		{
 			RemovePoint(point);
+			PointsChanged?.Invoke();
 		}
 
 		[RelayCommand(CanExecute = nameof(CanClearPointsExecute))]
@@ -56,6 +61,8 @@ namespace FunctionApproximator.VMsNew
 				point.PropertyChanged -= Point_PropertyChanged;
 			}
 			Points.Clear();
+			PointsChanged?.Invoke();
+			HasSameX = InvalidPointData = false;
 		}
 
 		private bool CanClearPointsExecute()
@@ -75,6 +82,7 @@ namespace FunctionApproximator.VMsNew
 		private void Point_PropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
 			HasSameX = _points.DistinctBy(p => p.X).Count() != _points.Count;
+			PointsChanged?.Invoke();
 		}
 
 		#endregion

@@ -1,33 +1,31 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using FunctionApproximator.Components;
-using FunctionApproximator.GraphSeries;
+using FunctionApproximator.Approximators;
+using FunctionApproximator.Extensions;
+using FunctionApproximator.Helpers;
 using FunctionApproximator.Messages;
 using FunctionApproximator.ViewModels;
 using OxyPlot;
-using OxyPlot.Series;
 using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using System.Windows;
+using System.Windows.Media.Media3D;
 
-namespace FunctionApproximator
+namespace FunctionApproximator.ViewModels
 {
-	unsafe partial class MainVM : ObservableObject
-    {
-		private static readonly PlotError _polynomDegreeError = new("Your polynom degree can't be higher than count of points.");
-
-		public AdaptivePlotModel PlotModel { get; } = new();
-		public PointsInputVM PointsInput { get; } = new();
-		public ApproximatorVM Approximator { get; } = new();
-		public DrawingSettingsVM DrawingSettings { get; } = new();
+	internal partial class MainVM : ObservableObject
+	{
+		public PointDataVM PointData { get; }
+		public FileLoaderVM FileLoader { get; }
+		public ApproximatorSettingsVM ApproximatorSettings { get; }
+		public DataCheckerVM DataChecker { get; }
+		public DrawingSettingsVM DrawingSettings { get; }
+		public GraphPlotterVM GraphPlotter { get; }
+		public ApproximatorVM Approximator { get; }
 
 		[ObservableProperty]
 		[NotifyCanExecuteChangedFor(nameof(ClearGraphCommand))]
@@ -35,19 +33,37 @@ namespace FunctionApproximator
 
 		public MainVM()
 		{
-			Approximator.ErrorsChanged += Approximator_ErrorsChanged;
-			PlotModel.ModelWindowBordersChanged += PlotModel_ModelWindowBordersChanged;
-			PointsInput.PropertyChanged += PointsInput_PropertyChanged;
-			PointsInput.InputDataChanged += OnInputDataChanged;
-			PointsInput.Points.CollectionChanged += (sndr, e) =>
+			PointData = new();
+			FileLoader = new(PointData);
+			ApproximatorSettings = new();
+			DataChecker = new(PointData, ApproximatorSettings);
+			DrawingSettings = new();
+			GraphPlotter = new();
+			Approximator = new(ApproximatorSettings);
+
+			#region Event listeners
+
+			DataChecker.PropertyChanged += (s, e) =>
 			{
-				OnDataReadynessChanged();
+				PlotGraphCommand.NotifyCanExecuteChanged();
 			};
-			Approximator.PropertyChanged += (sndr, e) =>
+			PointData.PointsChanged += () =>
 			{
-				if(e.PropertyName == nameof(Approximator.PolynomialDegree))
-					OnDataReadynessChanged();
+				if (!IsPlotted)
+					return;
+
+				WeakReferenceMessenger.Default.Send(new GraphAccordanceChanged(true));
 			};
+			GraphPlotter.ModelWindowBordersChanged += (l, r) =>
+			{
+				if (!IsPlotted)
+					return;
+
+				var res = Approximator.DrawGraph(l, r);
+				GraphPlotter.DrawApproximatedGraph(res);
+			};
+
+			#endregion
 		}
 
 		#region Commands
@@ -57,7 +73,7 @@ namespace FunctionApproximator
 		[RelayCommand]
 		private void OnLoaded()
 		{
-			PlotModel.Initialize();
+			GraphPlotter.Initialize();
 		}
 
 		#endregion
@@ -67,18 +83,18 @@ namespace FunctionApproximator
 		[RelayCommand(CanExecute = nameof(CanPlotGraphExecute))]
 		private void PlotGraph()
 		{
-			var data = PointsInput.GetPoints();
-			PlotModel.ClearGraphs();
+			var data = PointData.Points.FlattenPoints();
+			GraphPlotter.ClearGraphs();
 			Approximator.Approximate(data);
-			
-			double left = PlotModel.WindowLeftBorder, right = PlotModel.WindowRightBorder;
+
+			double left = GraphPlotter.WindowLeftBorder,
+				right = GraphPlotter.WindowRightBorder;
 
 			// draw graphs
-			var step = DrawingSettings.GetDrawingStep(left, right);
-			var res = Approximator.DrawGraph(left, right, step);
-			var (minX, maxX, minY, maxY) = PointsInput.GetInputPointsWindow();
-			PlotModel.Zoom(minX, maxX, minY, maxY);
-			PlotModel.DrawGraphs(data, res);
+			var res = Approximator.DrawGraph(left, right);
+			var (minX, maxX, minY, maxY) = FlatPointsHelper.GetMinMaxXY(data);
+			GraphPlotter.Zoom(minX, maxX, minY, maxY);
+			GraphPlotter.DrawGraphs(data, res);
 
 			IsPlotted = true;
 			WeakReferenceMessenger.Default.Send(new GraphAccordanceChanged(false));
@@ -86,16 +102,7 @@ namespace FunctionApproximator
 
 		private bool CanPlotGraphExecute()
 		{
-			if (int.TryParse(Approximator.PolynomialDegree, out var polDegree))
-			{
-				var isValidPolDegree = PointsInput.Points.Count >= polDegree;
-				WeakReferenceMessenger.Default.Send(new ChangeErrorMessage(_polynomDegreeError,
-					isValidPolDegree));
-
-				return PointsInput.IsDataReady && !Approximator.HasErrors && isValidPolDegree;
-			}
-			else
-				return false;
+			return DataChecker.IsReady;
 		}
 
 		#endregion
@@ -105,7 +112,7 @@ namespace FunctionApproximator
 		[RelayCommand(CanExecute = nameof(CanClearGraphExecute))]
 		private void ClearGraph()
 		{
-			PlotModel.ClearGraphs();
+			GraphPlotter.ClearGraphs();
 			Approximator.Clear();
 			WeakReferenceMessenger.Default.Send(new GraphAccordanceChanged(false));
 			IsPlotted = false;
@@ -118,49 +125,17 @@ namespace FunctionApproximator
 
 		#endregion
 
+		#region CopyToClipboard
+
+		[RelayCommand]
+		private void CopyToClipboard(object data)
+		{
+			Clipboard.SetText(data.ToString());
+			Clipboard.Flush();
+		}
+
 		#endregion
 
-		private void PointsInput_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-		{
-			switch (e.PropertyName)
-			{
-				case nameof(PointsInput.IsDataReady):
-					OnDataReadynessChanged();
-					break;
-				default:
-					break;
-			}
-		}
-
-		private void Approximator_ErrorsChanged(object? sender, DataErrorsChangedEventArgs e)
-		{
-			if (IsPlotted)
-				WeakReferenceMessenger.Default.Send(new GraphAccordanceChanged(true));
-		}
-
-		private void PlotModel_ModelWindowBordersChanged(double left, double right)
-		{
-			if (!IsPlotted)
-				return;
-
-			var step = DrawingSettings.GetDrawingStep(left, right);
-
-			var res = Approximator.DrawGraph(left, right, step);
-			PlotModel.DrawApproximatedGraph(res);
-		}
-
-		private void OnInputDataChanged()
-		{
-			if (IsPlotted)
-			{
-				WeakReferenceMessenger.Default.Send(new GraphAccordanceChanged(true));
-			}
-		}
-
-		private void OnDataReadynessChanged()
-		{
-			PlotGraphCommand.NotifyCanExecuteChanged();
-		}
+		#endregion
 	}
-
 }

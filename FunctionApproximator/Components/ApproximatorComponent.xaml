@@ -29,14 +29,54 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Approximator:"/>
+                <TextBlock Text="Drawing step:"/>
 
-                <controls:AdvancedComboBox Grid.Row="2"
-                          HorizontalAlignment="Left"
-                          MaxWidth="250"
-                          Style="{StaticResource Styles.ComboBox}"
-                          ItemsSource="{Binding Approximators}"
-                          SelectedItem="{Binding SelectedApproximator}"/>
+                <Grid Grid.Row="2">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="6"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <RadioButton GroupName="StepMode"
+                                 IsChecked="{Binding ApproximatorSettings.IsAutoDrawingStep}"
+                                 VerticalContentAlignment="Center"
+                                 Content="Automatic"/>
+
+                    <RadioButton x:Name="ManualStepRB"
+                                 Grid.Row="2"
+                                 GroupName="StepMode"
+                                 VerticalContentAlignment="Center"
+                                 HorizontalContentAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal">
+
+                            <TextBlock Text="Manual:"
+                                       VerticalAlignment="Center"
+                                       Margin="0 0 5 0"/>
+
+                            <controls:AdvancedTextBox Text="{Binding ApproximatorSettings.DrawingStep}">
+                                <controls:AdvancedTextBox.Style>
+                                    <Style TargetType="controls:AdvancedTextBox"
+                                            BasedOn="{StaticResource Styles.AdvancedTextBox}">
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                        <Setter Property="MinWidth" Value="30"/>
+                                        <Style.Triggers>
+
+                                            <DataTrigger Binding="{Binding ElementName=ManualStepRB,
+                                                                    Path=IsChecked}" Value="True">
+                                                <Setter Property="IsEnabled" Value="True"/>
+                                            </DataTrigger>
+
+                                        </Style.Triggers>
+                                    </Style>
+                                </controls:AdvancedTextBox.Style>
+                            </controls:AdvancedTextBox>
+
+                        </StackPanel>
+                    </RadioButton>
+
+                </Grid>
 
                 <TextBlock Grid.Column="1"
                            Text="Degree of the polynomial:"/>
@@ -45,7 +85,8 @@
                     Grid.Row="2" Grid.Column="1"
                     Width="40"
                     HorizontalAlignment="Left"
-                    Text="{Binding PolynomialDegree}"
+                    VerticalAlignment="Top"
+                    Text="{Binding ApproximatorSettings.PolynomialDegree, UpdateSourceTrigger=PropertyChanged}"
                     PreviewKeyDown="TextBox_PreviewKeyDown"
                     PreviewTextInput="TextBox_PreviewTextInput"/>
 
@@ -66,15 +107,17 @@
                 <TextBlock Text="Polynom:"/>
 
                 <controls:AdvancedTextBox
+                    x:Name="polTB"
                     Grid.Row="2"
                     IsReadOnly="True"
                     MaxLength="300"
-                    Text="{Binding PolynomRepresentation}"/>
+                    Text="{Binding Approximator.PolynomRepresentation}"/>
 
                 <controls:NormalButton
                     Grid.Row="2" Grid.Column="1"
                     Style="{StaticResource Styles.Buttons.Iconic}"
-                    Command="{Binding CopyRepresentationCommand}">
+                    Command="{Binding CopyToClipboardCommand}"
+                    CommandParameter="{Binding ElementName=polTB, Path=Text}">
                     <Image Source="{StaticResource Bitmaps.Copy24}" Height="24"/>
                 </controls:NormalButton>
 

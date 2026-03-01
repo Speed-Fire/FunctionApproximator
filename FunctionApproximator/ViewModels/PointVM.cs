@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FunctionApproximator.VMsNew
+namespace FunctionApproximator.ViewModels
 {
-	internal partial class PointVM : ObservableValidator
+	public partial class PointVM : ObservableValidator
 	{
 		[ObservableProperty]
 		private int _id;

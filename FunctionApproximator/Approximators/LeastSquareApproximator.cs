@@ -1,5 +1,4 @@
-﻿using FunctionApproximator.Domain.Interfaces;
-using FunctionApproximator.Misc;
+﻿using FunctionApproximator.Misc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,10 +20,8 @@ namespace FunctionApproximator.Approximators
 		}
 
 		private int _polynomialDegree;
-		private string _representation = string.Empty;
 
-		public string Name => "Least square";
-		public string Representation => _representation;
+		public IReadOnlyList<double> PolynomCoefficients { get; private set; } = [];
 
 		public int PolynomialDegree 
 		{
@@ -55,7 +52,7 @@ namespace FunctionApproximator.Approximators
 
 			_polynom = CreateLskPolynom(data, (nuint)data.Length, PolynomialDegree);
 			_hasPolynom = true;
-			CreateRepresentation();
+			FillPolynomRetrievePolynomCoefficients();
 		}
 
 		public Memory<double> Draw(double from, double to, double step)
@@ -77,7 +74,7 @@ namespace FunctionApproximator.Approximators
 			FreeGraph();
 		}
 
-		private void CreateRepresentation()
+		private void FillPolynomRetrievePolynomCoefficients()
 		{
 			if (!_hasPolynom)
 				return;
@@ -86,30 +83,13 @@ namespace FunctionApproximator.Approximators
 			var memory = memManager.Memory;
 			var span = memory.Span;
 
-			var sb = new StringBuilder();
+			var list = new List<double>();
 			for(int i = 0; i < span.Length; i++)
 			{
-				if(i == 0)
-				{
-					sb.Append(span[i]);
-				}
-				else
-				{
-					if (double.IsNegative(span[i]))
-						sb.Append(" - ");
-					else
-						sb.Append(" + ");
-
-					sb.Append(Math.Abs(span[i]));
-				}
-
-				if (i == 1)
-					sb.Append('x');
-				else if (i > 1)
-					sb.Append($"x^{i}");
+				list.Add(span[i]);
 			}
 
-			_representation = sb.ToString();
+			PolynomCoefficients = list;
 		}
 
 		private void FreePolynom()
@@ -183,15 +163,6 @@ namespace FunctionApproximator.Approximators
 			// Не изменяйте этот код. Разместите код очистки в методе "Dispose(bool disposing)".
 			Dispose(disposing: true);
 			GC.SuppressFinalize(this);
-		}
-
-		#endregion
-
-		#region Overrides
-
-		public override string ToString()
-		{
-			return Name;
 		}
 
 		#endregion

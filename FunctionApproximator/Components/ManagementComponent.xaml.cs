@@ -16,12 +16,12 @@ using System.Windows.Shapes;
 
 namespace FunctionApproximator.Components
 {
-    /// <summary>
-    /// Логика взаимодействия для PointsInputComponent.xaml
-    /// </summary>
-    public partial class PointsInputComponent : UserControl
+	/// <summary>
+	/// Логика взаимодействия для ManagementComponent.xaml
+	/// </summary>
+	public partial class ManagementComponent : UserControl
     {
-        public PointsInputComponent()
+        public ManagementComponent()
         {
             InitializeComponent();
         }

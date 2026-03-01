@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Messaging;
 using FunctionApproximator.Enums;
 using FunctionApproximator.Messages;
-using OxyPlot;
 using OxyPlot.Wpf;
 using System;
 using System.Collections.Generic;
@@ -14,10 +13,10 @@ using System.Windows.Media;
 
 namespace FunctionApproximator.ViewModels
 {
-    public partial class DrawingSettingsVM : ObservableObject
-    {
+	internal partial class DrawingSettingsVM : ObservableObject
+	{
 		[ObservableProperty]
-		private bool _showInputGraph = false;
+		private bool _showInputGraph = true;
 
 		[ObservableProperty]
 		private bool _showApproximatedGraph = true;
@@ -29,12 +28,6 @@ namespace FunctionApproximator.ViewModels
 		private Brush _approximatedGraphColor;
 
 		[ObservableProperty]
-        private string _drawingStep = "0.1";
-
-        [ObservableProperty]
-        private bool _isAutoDrawingStep = false;
-
-		[ObservableProperty]
 		private bool _showMajorGridlines = true;
 
 		[ObservableProperty]
@@ -42,8 +35,6 @@ namespace FunctionApproximator.ViewModels
 
 		public DrawingSettingsVM()
 		{
-			IsAutoDrawingStep = true;
-
 			ApproximatedGraphColor = new SolidColorBrush(Colors.LightGreen);
 			InputGraphColor = new SolidColorBrush(Colors.OrangeRed);
 		}
@@ -88,31 +79,13 @@ namespace FunctionApproximator.ViewModels
 
 		#endregion
 
-		public double GetDrawingStep(double left, double right)
-        {
-            if (IsAutoDrawingStep)
-                return GetStep(left, right);
-            else
-                return double.Parse(DrawingStep);
-        }
-
-		private static double GetStep(double left, double right)
-		{
-			var diff = (long)Math.Ceiling(Math.Abs(left - right));
-			var step = 0.1;
-
-			while (diff > 100)
-			{
-				diff /= 10;
-				step *= 10;
-			}
-
-			return step;
-		}
+		#region Internal
 
 		private GridlineVisibility GetGridlineVisibility()
 		{
-			return (GridlineVisibility)((Unsafe.BitCast<bool, byte>(ShowMajorGridlines) & 1) +  2 * (Unsafe.BitCast<bool, byte>(ShowMinorGridlines) & 1));
+			return (GridlineVisibility)((Unsafe.BitCast<bool, byte>(ShowMajorGridlines) & 1) + 2 * (Unsafe.BitCast<bool, byte>(ShowMinorGridlines) & 1));
 		}
+
+		#endregion
 	}
 }

@@ -45,63 +45,22 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <TextBlock Text="Drawing step"/>
+            <TextBlock Text="Graph"/>
 
-            <RadioButton Grid.Row="2"
-                         GroupName="StepMode"
-                         IsChecked="{Binding IsAutoDrawingStep}"
-                         VerticalContentAlignment="Center"
-                         Content="Automatic"/>
-
-            <RadioButton x:Name="ManualStepRB"
-                         Grid.Row="4"
-                         GroupName="StepMode"
-                         VerticalContentAlignment="Center"
-                         HorizontalContentAlignment="Stretch">
-                <StackPanel Orientation="Horizontal">
-
-                    <TextBlock Text="Manual:"
-                               VerticalAlignment="Center"
-                               Margin="0 0 5 0"/>
-
-                    <controls:AdvancedTextBox Text="{Binding DrawingStep}">
-                        <controls:AdvancedTextBox.Style>
-                            <Style TargetType="controls:AdvancedTextBox"
-                                   BasedOn="{StaticResource Styles.AdvancedTextBox}">
-                                <Setter Property="IsEnabled" Value="False"/>
-                                <Setter Property="MinWidth" Value="30"/>
-                                <Style.Triggers>
-
-                                    <DataTrigger Binding="{Binding ElementName=ManualStepRB,
-                                        Path=IsChecked}" Value="True">
-                                        <Setter Property="IsEnabled" Value="True"/>
-                                    </DataTrigger>
-                                    
-                                </Style.Triggers>
-                            </Style>
-                        </controls:AdvancedTextBox.Style>
-                    </controls:AdvancedTextBox>
-
-                </StackPanel>
-            </RadioButton>
-
-            <TextBlock Grid.Column="1"
-                       Text="Graph appearance"/>
-
-            <CheckBox Grid.Row="2" Grid.Column="1"
+            <CheckBox Grid.Row="2"
                       IsChecked="{Binding ShowApproximatedGraph}"
                       VerticalContentAlignment="Center"
-                      Content="Show approximated fraph"/>
+                      Content="Show approximated graph"/>
 
-            <CheckBox Grid.Row="4" Grid.Column="1"
+            <CheckBox Grid.Row="4"
                       IsChecked="{Binding ShowInputGraph}"
                       VerticalContentAlignment="Center"
                       Content="Show input values graph"/>
 
-            <TextBlock Grid.Row="6" Grid.Column="1"
+            <TextBlock Grid.Row="6"
                        Text="Colors"/>
 
-            <Grid Grid.Row="8" Grid.Column="1">
+            <Grid Grid.Row="8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" SharedSizeGroup="Col1"/>
                     <ColumnDefinition Width="*"/>
@@ -116,7 +75,7 @@
 
             </Grid>
 
-            <Grid Grid.Row="10" Grid.Column="1">
+            <Grid Grid.Row="10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" SharedSizeGroup="Col1"/>
                     <ColumnDefinition Width="*"/>
@@ -131,14 +90,14 @@
 
             </Grid>
 
-            <TextBlock Grid.Row="6" Grid.Column="0"
+            <TextBlock Grid.Row="0" Grid.Column="1"
                        Text="Gridlines"/>
 
-            <CheckBox Grid.Row="8" Grid.Column="0"
+            <CheckBox Grid.Row="2" Grid.Column="1"
                       IsChecked="{Binding ShowMajorGridlines}"
                       Content="Show major gridlines"/>
 
-            <CheckBox Grid.Row="10" Grid.Column="0"
+            <CheckBox Grid.Row="4" Grid.Column="1"
                       IsChecked="{Binding ShowMinorGridlines}"
                       Content="Show minor gridlines"/>
 

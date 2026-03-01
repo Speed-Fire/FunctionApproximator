@@ -6,7 +6,6 @@ using FunctionApproximator.Helpers;
 using FunctionApproximator.Messages;
 using OxyPlot;
 using OxyPlot.Axes;
-using OxyPlot.Wpf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +13,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-//#nullable disable
-
-namespace FunctionApproximator
+namespace FunctionApproximator.ViewModels
 {
-    public partial class AdaptivePlotModel : ObservableObject,
+	internal partial class GraphPlotterVM : ObservableObject,
 		IRecipient<GraphColorChanged>,
 		IRecipient<GraphVisibilityChanged>,
 		IRecipient<GraphGridlinesVisibilityChanged>
-    {
+	{
 		[ObservableProperty]
-        private PlotModel _model;
+		private PlotModel _model;
 
 		private readonly CustomLineSeries _approximatedGraphSeries;
 		private readonly CustomLineSeries _inputGraphSeries;
@@ -43,7 +40,7 @@ namespace FunctionApproximator
 
 		public event Action<double, double>? ModelWindowBordersChanged;
 
-		public AdaptivePlotModel()
+		public GraphPlotterVM()
 		{
 			_majorGridlineColor = AppearanceHelper.FindColorOxy("Gray700");
 			_minorGridlineColor = AppearanceHelper.FindColorOxy("Gray600");
@@ -54,25 +51,32 @@ namespace FunctionApproximator
 
 			_model.Axes.Add(_xAxis);
 			_model.Axes.Add(_yAxis);
-
 			_approximatedGraphSeries = new CustomLineSeries();
 			_inputGraphSeries = new CustomLineSeries
 			{
-				IsVisible = false,
 				MarkerType = MarkerType.Diamond,
 				MarkerSize = 6,
 				LineStyle = LineStyle.None
 			};
-			
+
 			_model.Series.Add(_approximatedGraphSeries);
 			_model.Series.Add(_inputGraphSeries);
 
 			WeakReferenceMessenger.Default.RegisterAll(this);
 		}
 
+		public void Initialize()
+		{
+			SetXWindowBorders(_xAxis.ClipMinimum, _xAxis.ClipMaximum);
+
+#pragma warning disable CS0618 // Тип или член устарел
+			_xAxis.AxisChanged += XAxis_AxisChanged;
+#pragma warning restore CS0618 // Тип или член устарел
+		}
+
 		#region Model and axes
 
-		private static Axis CreateAxis(AxisPosition position, double minimum, double maximum)
+		private static LinearAxis CreateAxis(AxisPosition position, double minimum, double maximum)
 		{
 			var mainColor = AppearanceHelper.FindColorOxy("Gray900");
 			var gridlineColor = AppearanceHelper.FindColorOxy("Gray700");
@@ -105,6 +109,23 @@ namespace FunctionApproximator
 
 		#endregion
 
+		#region Commands
+
+		[RelayCommand]
+		private void OnMouseUp(MouseButtonEventArgs e)
+		{
+			var newXMin = _xAxis.ActualMinimum;
+			if (Math.Abs(newXMin - _currentXMin) < 1e-5)
+				return;
+
+			SetXWindowBorders(_xAxis.ClipMinimum, _xAxis.ClipMaximum);
+			ModelWindowBordersChanged?.Invoke(WindowLeftBorder, WindowRightBorder);
+		}
+
+		#endregion
+
+		#region Zoom
+
 		public void Zoom(double minX, double maxX, double minY, double maxY)
 		{
 			double dx = (maxX - minX) * 0.1;
@@ -116,6 +137,19 @@ namespace FunctionApproximator
 			xAxis.Zoom(minX - dx, maxX + dx);
 			yAxis.Zoom(minY - dy, maxY + dy);
 		}
+
+		private void XAxis_AxisChanged(object? sender, AxisChangedEventArgs e)
+		{
+			if (e.ChangeType != AxisChangeTypes.Zoom)
+				return;
+
+			SetXWindowBorders(_xAxis.ClipMinimum, _xAxis.ClipMaximum);
+			ModelWindowBordersChanged?.Invoke(WindowLeftBorder, WindowRightBorder);
+		}
+
+		#endregion
+
+		#region Drawing
 
 		public void DrawGraphs(ReadOnlyMemory<double> inputData,
 			ReadOnlyMemory<double> approximatedData)
@@ -139,34 +173,9 @@ namespace FunctionApproximator
 			Model.InvalidatePlot(false);
 		}
 
-		public void Initialize()
-		{
-			SetXWindowBorders(_xAxis.ClipMinimum, _xAxis.ClipMaximum);
+		#endregion
 
-#pragma warning disable CS0618 // Тип или член устарел
-			_xAxis.AxisChanged += XAxis_AxisChanged;
-#pragma warning restore CS0618 // Тип или член устарел
-		}
-
-		private void XAxis_AxisChanged(object? sender, AxisChangedEventArgs e)
-		{
-			if (e.ChangeType != AxisChangeTypes.Zoom)
-				return;
-
-			SetXWindowBorders(_xAxis.ClipMinimum, _xAxis.ClipMaximum);
-			ModelWindowBordersChanged?.Invoke(WindowLeftBorder, WindowRightBorder);
-		}
-
-		[RelayCommand]
-		private void OnMouseUp(MouseButtonEventArgs e)
-		{
-			var newXMin = _xAxis.ActualMinimum;
-			if (Math.Abs(newXMin - _currentXMin) < 1e-5)
-				return;
-
-			SetXWindowBorders(_xAxis.ClipMinimum, _xAxis.ClipMaximum);
-			ModelWindowBordersChanged?.Invoke(WindowLeftBorder, WindowRightBorder);
-		}
+		#region Internal
 
 		private void SetXWindowBorders(double modelXMin, double modelXMax)
 		{
@@ -177,6 +186,8 @@ namespace FunctionApproximator
 			WindowLeftBorder = modelXMin - interval;
 			WindowRightBorder = modelXMax + interval;
 		}
+
+		#endregion
 
 		#region Message handlers
 

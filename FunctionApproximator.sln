@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OxyPlot.Wpf.Shared", "OxyPl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OxyPlot.Wpf", "OxyPlotCustom\OxyPlot.Wpf\OxyPlot.Wpf.csproj", "{8DB7DA4F-687B-9ED1-0AEA-82964120AF59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionApproximator.Domain", "FunctionApproximator.Domain\FunctionApproximator.Domain.csproj", "{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionApproximator.UI", "FunctionApproximator.UI\FunctionApproximator.UI.csproj", "{12F48881-7DDB-4915-8383-CB81AB53065E}"
 EndProject
 Global
@@ -89,18 +87,6 @@ Global
 		{8DB7DA4F-687B-9ED1-0AEA-82964120AF59}.Release|x64.Build.0 = Release|Any CPU
 		{8DB7DA4F-687B-9ED1-0AEA-82964120AF59}.Release|x86.ActiveCfg = Release|Any CPU
 		{8DB7DA4F-687B-9ED1-0AEA-82964120AF59}.Release|x86.Build.0 = Release|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Debug|x64.Build.0 = Debug|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Debug|x86.Build.0 = Debug|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Release|x64.ActiveCfg = Release|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Release|x64.Build.0 = Release|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Release|x86.ActiveCfg = Release|Any CPU
-		{7ABE95C2-2E72-4038-A8F1-E56575B12FCE}.Release|x86.Build.0 = Release|Any CPU
 		{12F48881-7DDB-4915-8383-CB81AB53065E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{12F48881-7DDB-4915-8383-CB81AB53065E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12F48881-7DDB-4915-8383-CB81AB53065E}.Debug|x64.ActiveCfg = Debug|Any CPU

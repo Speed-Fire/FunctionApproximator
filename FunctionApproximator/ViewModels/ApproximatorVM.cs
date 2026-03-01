@@ -1,96 +1,86 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using FunctionApproximator.Approximators;
-using FunctionApproximator.Domain.Interfaces;
-using FunctionApproximator.Messages;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
+using System.Windows.Documents;
 
 namespace FunctionApproximator.ViewModels
 {
-    public partial class ApproximatorVM : 
-		ObservableValidator,
-		IRecipient<RequestPolynomDegreeMessage>
-    {
-        public List<IFunctionApproximator> Approximators { get; } = [
-			new LeastSquareApproximator()
-			];
+	internal partial class ApproximatorVM : ObservableObject
+	{
+		private readonly IFunctionApproximator _approximator;
+		private readonly ApproximatorSettingsVM _settings;
 
 		[ObservableProperty]
-		[MinLength(1)]
-		private string _polynomialDegree = "1";
+		private IReadOnlyList<double>? _coefficients;
 
-        [ObservableProperty]
-		[NotifyCanExecuteChangedFor(nameof(CopyRepresentationCommand))]
-        private string _polynomRepresentation = string.Empty;
+		[ObservableProperty]
+		private string _polynomRepresentation = string.Empty;
 
-        [ObservableProperty]
-        private IFunctionApproximator _selectedApproximator;
-
-		public ApproximatorVM()
+		public ApproximatorVM(ApproximatorSettingsVM settings)
 		{
-			SelectedApproximator = Approximators[0];
-			WeakReferenceMessenger.Default.RegisterAll(this);
-		}
-
-		partial void OnPolynomialDegreeChanged(string value)
-		{
-			if(int.TryParse(value, out var degree))
-			{
-				SelectedApproximator!.PolynomialDegree = degree;
-			}
-			else
-			{
-				PolynomialDegree = "1";
-			}
-		}
-
-		partial void OnSelectedApproximatorChanged(
-			IFunctionApproximator? oldValue, IFunctionApproximator newValue)
-		{
-			oldValue?.Clear();
-			newValue.PolynomialDegree = int.Parse(PolynomialDegree);
-			PolynomRepresentation = string.Empty;
-		}
-
-		[RelayCommand(CanExecute = nameof(CanCopyRepresentationExecute))]
-		private void CopyRepresentation()
-		{
-			Clipboard.SetText(PolynomRepresentation);
-			Clipboard.Flush();
-		}
-
-		private bool CanCopyRepresentationExecute()
-		{
-			return !string.IsNullOrEmpty(PolynomRepresentation);
+			_approximator = new LeastSquareApproximator();
+			_settings = settings;
 		}
 
 		public void Approximate(double[] data)
 		{
-			SelectedApproximator!.Approximate(data);
-			PolynomRepresentation = SelectedApproximator.Representation;
+			if (_settings.InvalidDegree)
+				throw new Exception("Invalid polynom degree.");
+
+			_approximator.PolynomialDegree = _settings.Degree;
+			_approximator.Approximate(data);
+			Coefficients = _approximator.PolynomCoefficients;
+			CreatePolynomString();
 		}
 
-		public Memory<double> DrawGraph(double from, double to, double step)
+		public Memory<double> DrawGraph(double left, double right)
 		{
-			return SelectedApproximator.Draw(from, to, step);
+			var step = _settings.GetDrawingStep(left, right);
+			return _approximator.Draw(left, right, step);
 		}
 
 		public void Clear()
 		{
-			SelectedApproximator.Clear();
+			_approximator.Clear();
+			Coefficients = [];
 			PolynomRepresentation = string.Empty;
 		}
 
-		void IRecipient<RequestPolynomDegreeMessage>.Receive(RequestPolynomDegreeMessage message)
+		private void CreatePolynomString()
 		{
-			message.Reply(int.Parse(PolynomialDegree));
+			if(Coefficients is null)
+				throw new ArgumentNullException(nameof(Coefficients));
+
+			var sb = new StringBuilder();
+			for (int i = 0; i < Coefficients.Count; i++)
+			{
+				var coef = Math.Round(Coefficients[i], 2);
+
+				if (i == 0)
+				{
+					sb.Append(coef);
+				}
+				else
+				{
+					if (double.IsNegative(coef))
+						sb.Append(" - ");
+					else
+						sb.Append(" + ");
+
+					sb.Append(Math.Abs(coef));
+				}
+
+				if (i == 1)
+					sb.Append('x');
+				else if (i > 1)
+					sb.Append($"x^{i}");
+			}
+
+			PolynomRepresentation = sb.ToString();
 		}
 	}
 }

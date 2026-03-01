@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FunctionApproximator.VMsNew
+namespace FunctionApproximator.ViewModels
 {
 	internal partial class DataCheckerVM : ObservableObject
 	{
@@ -44,9 +44,9 @@ namespace FunctionApproximator.VMsNew
 		private void UpdateReadyness()
 		{
 			IsReady = 
-				CheckPointsCorrectness() &&
-				CheckPointsSameX() &&
-				CheckApproximatorDegreeCorrectness() &&
+				CheckPointsCorrectness() &
+				CheckPointsSameX() &
+				CheckApproximatorDegreeCorrectness() &
 				CheckPointCountAndDegree();
 		}
 

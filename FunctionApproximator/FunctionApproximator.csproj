@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FunctionApproximator.Domain\FunctionApproximator.Domain.csproj" />
     <ProjectReference Include="..\FunctionApproximator.UI\FunctionApproximator.UI.csproj" />
     <ProjectReference Include="..\OxyPlotCustom\OxyPlot.Wpf\OxyPlot.Wpf.csproj" />
   </ItemGroup>

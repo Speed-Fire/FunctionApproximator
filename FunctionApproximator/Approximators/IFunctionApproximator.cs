@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FunctionApproximator.Domain.Interfaces
+namespace FunctionApproximator.Approximators
 {
     public interface IFunctionApproximator : IDisposable
     {

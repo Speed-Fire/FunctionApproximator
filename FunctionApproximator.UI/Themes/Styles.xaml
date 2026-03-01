@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:controls="clr-namespace:FunctionApproximator.UI.Controls">
+                    xmlns:controls="clr-namespace:FunctionApproximator.UI.Controls"
+                    x:Class="FunctionApproximator.UI.Themes.Styles">
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="../Controls/ScrollBar/ScrollBar.xaml"/>
@@ -86,6 +87,9 @@
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="Padding" Value="8 2 8 2"/>
+
+        <EventSetter Event="PreviewMouseDown" Handler="TextBox_PreviewMouseDown"/>
+        <EventSetter Event="GotKeyboardFocus" Handler="TextBox_GotKeyboardFocus"/>
     </Style>
 
     <Style TargetType="controls:AdvancedTextBox" BasedOn="{StaticResource Styles.AdvancedTextBox}"/>
