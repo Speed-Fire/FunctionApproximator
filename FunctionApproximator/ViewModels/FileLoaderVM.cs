@@ -32,13 +32,11 @@ namespace FunctionApproximator.ViewModels
 				var data = FileParser.ReadCsv(file);
 
 				_pointData.ClearPointsCommand.Execute(null);
-				foreach (var arr in data)
-				{
-					_pointData.AddPoint(arr[0], arr[1]);
-				}
+				_pointData.AddPointRange(data.Select(arr => Tuple.Create(arr[0], arr[1])));
 			}
 			catch (Exception ex)
 			{
+				_pointData.ClearPointsCommand.Execute(null);
 				this.ShowError(ex.Message);
 			}
 		}

@@ -17,11 +17,11 @@ using System.Windows.Shapes;
 namespace FunctionApproximator.Components
 {
     /// <summary>
-    /// Логика взаимодействия для DrawingSettingsComponents.xaml
+    /// Логика взаимодействия для DrawingSettingsComponent.xaml
     /// </summary>
-    public partial class DrawingSettingsComponents : UserControl
+    public partial class DrawingSettingsComponent : UserControl
     {
-        public DrawingSettingsComponents()
+        public DrawingSettingsComponent()
         {
             InitializeComponent();
         }

@@ -19,9 +19,9 @@ namespace FunctionApproximator.Components
     /// <summary>
     /// Логика взаимодействия для ApproximatorComponent.xaml
     /// </summary>
-    public partial class ApproximatorComponent : UserControl
+    public partial class ApproximatorSettingsComponent : UserControl
     {
-        public ApproximatorComponent()
+        public ApproximatorSettingsComponent()
         {
             InitializeComponent();
         }

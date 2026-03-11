@@ -24,11 +24,10 @@
         <Image x:Name="LightBulb"
                Source="{StaticResource Bitmaps.LightOn32}" Width="32"/>
 
-        <TextBlock Grid.Column="1" x:Name="AttentionText"
+        <TextBlock Grid.Column="1" x:Name="NotificationText"
                    VerticalAlignment="Center"
                    TextWrapping="Wrap"
-                   Margin="10 0 0 0"
-                   Text="Attention! Input data was changed. Please replot the graph."/>
+                   Margin="10 0 0 0"/>
 
         <Image Grid.Row="2"
                Source="{StaticResource Bitmaps.LightOff32}" Width="32"/>

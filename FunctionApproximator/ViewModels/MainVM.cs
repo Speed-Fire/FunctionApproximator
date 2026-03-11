@@ -26,6 +26,7 @@ namespace FunctionApproximator.ViewModels
 		public DrawingSettingsVM DrawingSettings { get; }
 		public GraphPlotterVM GraphPlotter { get; }
 		public ApproximatorVM Approximator { get; }
+		public NotificationsVM Notifications { get; }
 
 		[ObservableProperty]
 		[NotifyCanExecuteChangedFor(nameof(ClearGraphCommand))]
@@ -36,7 +37,8 @@ namespace FunctionApproximator.ViewModels
 			PointData = new();
 			FileLoader = new(PointData);
 			ApproximatorSettings = new();
-			DataChecker = new(PointData, ApproximatorSettings);
+			Notifications = new();
+			DataChecker = new(PointData, ApproximatorSettings, Notifications);
 			DrawingSettings = new();
 			GraphPlotter = new();
 			Approximator = new(ApproximatorSettings);
@@ -52,7 +54,7 @@ namespace FunctionApproximator.ViewModels
 				if (!IsPlotted)
 					return;
 
-				WeakReferenceMessenger.Default.Send(new GraphAccordanceChanged(true));
+				Notifications.AddNotification(Misc.Notifications.INPUT_CHANGED);
 			};
 			GraphPlotter.ModelWindowBordersChanged += (l, r) =>
 			{
@@ -97,7 +99,7 @@ namespace FunctionApproximator.ViewModels
 			GraphPlotter.DrawGraphs(data, res);
 
 			IsPlotted = true;
-			WeakReferenceMessenger.Default.Send(new GraphAccordanceChanged(false));
+			Notifications.RemoveNotification(Misc.Notifications.INPUT_CHANGED);
 		}
 
 		private bool CanPlotGraphExecute()
@@ -114,7 +116,7 @@ namespace FunctionApproximator.ViewModels
 		{
 			GraphPlotter.ClearGraphs();
 			Approximator.Clear();
-			WeakReferenceMessenger.Default.Send(new GraphAccordanceChanged(false));
+			Notifications.RemoveNotification(Misc.Notifications.INPUT_CHANGED);
 			IsPlotted = false;
 		}
 

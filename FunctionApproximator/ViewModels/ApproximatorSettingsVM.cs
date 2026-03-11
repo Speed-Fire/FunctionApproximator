@@ -40,8 +40,10 @@ namespace FunctionApproximator.ViewModels
 
 		public static ValidationResult ValidateInt(string value)
 		{
-			if (!int.TryParse(value, out _))
+			if (!int.TryParse(value, out var degree))
 				return new("Incorrect format.");
+			if (degree < 1)
+				return new("Polynom degree must be higher than 0.");
 			return ValidationResult.Success!;
 		}
 

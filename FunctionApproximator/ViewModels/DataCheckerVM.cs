@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Messaging;
 using FunctionApproximator.Components;
 using FunctionApproximator.Messages;
+using FunctionApproximator.Misc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,25 +13,21 @@ namespace FunctionApproximator.ViewModels
 {
 	internal partial class DataCheckerVM : ObservableObject
 	{
-		#region Errors
-
-		private static readonly PlotError INVALID_POINTS = new("Some points have incorrect data.");
-		private static readonly PlotError POINTS_SAME_X = new("Some of your points have the same X.");
-		private static readonly PlotError INVALID_DEGREE = new("Polynom degree value is invalid.");
-		private static readonly PlotError INVALID_POINT_COUNT = new("Polynom degree can't be higher than count of points minus one.");
-
-		#endregion
-
 		private readonly PointDataVM _pointData;
 		private readonly ApproximatorSettingsVM _approxSettings;
+		private readonly NotificationsVM _notifications;
 
 		[ObservableProperty]
 		private bool _isReady;
 
-		public DataCheckerVM(PointDataVM pointData, ApproximatorSettingsVM approxSettings)
+		public DataCheckerVM(
+			PointDataVM pointData,
+			ApproximatorSettingsVM approxSettings,
+			NotificationsVM notifications)
 		{
 			this._pointData = pointData;
 			this._approxSettings = approxSettings;
+			_notifications = notifications;
 
 			pointData.PropertyChanged += DataChanged;
 			approxSettings.PropertyChanged += DataChanged;
@@ -46,42 +43,56 @@ namespace FunctionApproximator.ViewModels
 			IsReady = 
 				CheckPointsCorrectness() &
 				CheckPointsSameX() &
+				CheckAscendendXOrder() &
 				CheckApproximatorDegreeCorrectness() &
 				CheckPointCountAndDegree();
+		}
+
+		private bool CheckAscendendXOrder()
+		{
+			var isCorrect = !_pointData.InvalidXOrder;
+			SendError(Notifications.INVALID_X_ORDER, isCorrect);
+			return isCorrect;
 		}
 
 		private bool CheckPointsCorrectness()
 		{
 			var isCorrect = !_pointData.InvalidPointData;
-			SendError(INVALID_POINTS, isCorrect);
+			SendError(Notifications.INVALID_POINTS, isCorrect);
 			return isCorrect;
 		}
 
 		private bool CheckPointsSameX()
 		{
 			var isCorrect = !_pointData.HasSameX;
-			SendError(POINTS_SAME_X, isCorrect);
+			SendError(Notifications.POINTS_SAME_X, isCorrect);
 			return isCorrect;
 		}
 
 		private bool CheckApproximatorDegreeCorrectness()
 		{
 			var isCorrect = !_approxSettings.InvalidDegree;
-			SendError(INVALID_DEGREE, isCorrect);
+			SendError(Notifications.INVALID_DEGREE, isCorrect);
 			return isCorrect;
 		}
 
 		private bool CheckPointCountAndDegree()
 		{
 			var isCorrect = _pointData.PointCount >= _approxSettings.Degree + 1;
-			SendError(INVALID_POINT_COUNT, isCorrect);
+			SendError(Notifications.INVALID_POINT_COUNT, isCorrect);
 			return isCorrect;
 		}
 
-		private static void SendError(PlotError message, bool remove)
+		private void SendError(Notification error, bool remove)
 		{
-			WeakReferenceMessenger.Default
-				.Send(new ChangeErrorMessage(message, remove));
+			if (remove)
+			{
+				_notifications.RemoveError(error);
+			}
+			else
+			{
+				_notifications.AddError(error);
+			}
 		}
 	}
 }

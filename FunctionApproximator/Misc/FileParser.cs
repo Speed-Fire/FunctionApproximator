@@ -24,21 +24,5 @@ namespace FunctionApproximator.Misc
 
             return result;
         }
-
-        public static double[] ReadCsvToDouble(string path, char delimiter = ';')
-        {
-            var rawValues = ReadCsv(path, delimiter);
-
-            var values = new double[rawValues.Count() * 2];
-            var i = 0;
-            foreach(var arr in rawValues)
-            {
-                values[i] = double.Parse(arr[0]);
-                values[i + 1] = double.Parse(arr[1]);
-                i += 2;
-            }
-
-            return values;
-        }
     }
 }

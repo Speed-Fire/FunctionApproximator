@@ -71,7 +71,8 @@
             </oxy:PlotView>
 
             <comps:NotificationsComponent
-                Grid.Row="1"/>
+                Grid.Row="1"
+                DataContext="{Binding Notifications}"/>
 
             <Grid Grid.Row="1" Grid.Column="1">
                 <Grid.ColumnDefinitions>
@@ -80,9 +81,9 @@
                     <ColumnDefinition Width="0.49*"/>
                 </Grid.ColumnDefinitions>
 
-                <comps:ApproximatorComponent DataContext="{Binding}"/>
+                <comps:ApproximatorSettingsComponent DataContext="{Binding}"/>
 
-                <comps:DrawingSettingsComponents Grid.Column="2"
+                <comps:DrawingSettingsComponent Grid.Column="2"
                                                  DataContext="{Binding DrawingSettings}"/>
 
             </Grid>
