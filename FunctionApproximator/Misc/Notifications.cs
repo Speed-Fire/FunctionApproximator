@@ -14,7 +14,8 @@ namespace FunctionApproximator.Misc
 
 		public static Notification INVALID_POINTS { get; } = new("Some points have incorrect data.", true);
 		public static Notification POINTS_SAME_X { get; } = new("Some of your points have the same X.", true);
-		public static Notification INVALID_DEGREE { get; } = new("Polynom degree value is invalid.", true);
+		public static Notification INVALID_DEGREE { get; } = new("Polynom degree must be a positive integer.", true);
+		public static Notification INVALID_SAMPLING_DENSITY { get; } = new("Sampling density must be a positive integer.", true);
 		public static Notification INVALID_POINT_COUNT { get; } = new("Polynom degree can't be higher than count of points minus one.", true);
 		public static Notification INVALID_X_ORDER { get; } = new("The x-values must be in ascending order.", true);
 

@@ -13,10 +13,10 @@ namespace FunctionApproximator.Approximators
 	public partial class LeastSquareApproximator : IFunctionApproximator
 	{
 		[StructLayout(LayoutKind.Sequential)]
-		struct EqualitySolution
+		struct Array
 		{
 			public IntPtr variables; // double pointer
-			public int length;
+			public nuint length;
 		}
 
 		private int _polynomialDegree;
@@ -32,35 +32,54 @@ namespace FunctionApproximator.Approximators
 		#region Polynom
 
 		private bool _hasPolynom = false;
-		private EqualitySolution _polynom;
+		private Array _polynom;
 
 		#endregion
 
 		#region Graph
 
-		private bool _hasGraph = false;
-		private EqualitySolution _graph;
+		private Array _graph;
+
+		#endregion
+
+		#region Controlling
+
+		public void Initialize(int samplingDensity)
+		{
+			NativeInitialize(samplingDensity);
+		}
+
+		public void SetSamplingDensity(int samplingDensity)
+		{
+			NativeSetSamplingDensity(samplingDensity);
+		}
 
 		#endregion
 
 		#region Approximation
 
-		public void Approximate(double[] data)
+		public unsafe void Approximate(double[] data)
 		{
 			FreePolynom();
-			FreeGraph();
 
-			_polynom = CreateLskPolynom(data, (nuint)data.Length, PolynomialDegree);
+			fixed(double* ptr = data)
+			{
+				var array = new Array()
+				{
+					variables = (IntPtr)ptr,
+					length = (nuint)data.Length,
+				};
+
+				_polynom = NativeCreateLsPolynom(ref array, PolynomialDegree);
+			}
+
 			_hasPolynom = true;
-			FillPolynomRetrievePolynomCoefficients();
+			RetrievePolynomCoefficients();
 		}
 
-		public Memory<double> Draw(double from, double to, double step)
+		public Memory<double> Draw(double from, double to)
 		{
-			FreeGraph();
-
-			_graph = DrawGraph(ref _polynom, from, to, step);
-			_hasGraph = true;
+			_graph = NativeDrawGraph(ref _polynom, from, to);
 
 			var memManager = new UnmanagedDoubleMemoryManager(_graph.variables, _graph.length);
 			var memory = memManager.Memory;
@@ -71,10 +90,9 @@ namespace FunctionApproximator.Approximators
 		public void Clear()
 		{
 			FreePolynom();
-			FreeGraph();
 		}
 
-		private void FillPolynomRetrievePolynomCoefficients()
+		private void RetrievePolynomCoefficients()
 		{
 			if (!_hasPolynom)
 				return;
@@ -96,17 +114,8 @@ namespace FunctionApproximator.Approximators
 		{
 			if (_hasPolynom)
 			{
-				FreeEqualitySolution(ref _polynom);
+				NativeFreeArray(ref _polynom);
 				_hasPolynom = false;
-			}
-		}
-
-		private void FreeGraph()
-		{
-			if (_hasGraph)
-			{
-				FreeEqualitySolution(ref _graph);
-				_hasGraph = false;
 			}
 		}
 
@@ -116,18 +125,29 @@ namespace FunctionApproximator.Approximators
 
 		private const string DllName = "ApproximationLib.dll";
 
-		[LibraryImport(DllName)]
-		[UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-		private static partial EqualitySolution CreateLskPolynom(double[] data, nuint length, int degree);
+		[LibraryImport(DllName, EntryPoint = "Initialize")]
+		[UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+		private static partial void NativeInitialize(int samplingDensity);
 
-		[LibraryImport(DllName)]
-		[UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-		private static partial EqualitySolution DrawGraph(ref EqualitySolution solution,
-			double from, double to, double step);
+		[LibraryImport(DllName, EntryPoint = "SetSamplingDensity")]
+		[UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+		private static partial void NativeSetSamplingDensity(int samplingDensity);
 
-		[LibraryImport(DllName)]
-		[UnmanagedCallConv(CallConvs = new Type[] { typeof(System.Runtime.CompilerServices.CallConvCdecl) })]
-		static partial void FreeEqualitySolution(ref EqualitySolution solution);
+		[LibraryImport(DllName, EntryPoint = "Dispose")]
+		[UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+		private static partial void NativeDispose();
+
+		[LibraryImport(DllName, EntryPoint = "CreateLsPolynom")]
+		[UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+		private static partial Array NativeCreateLsPolynom(ref Array data, int degree);
+
+		[LibraryImport(DllName, EntryPoint = "DrawGraph")]
+		[UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+		private static partial Array NativeDrawGraph(ref Array solution, double from, double to);
+
+		[LibraryImport(DllName, EntryPoint = "FreeArray")]
+		[UnmanagedCallConv(CallConvs = [typeof(System.Runtime.CompilerServices.CallConvCdecl)])]
+		static partial void NativeFreeArray(ref Array solution);
 
 		#endregion
 
@@ -141,26 +161,22 @@ namespace FunctionApproximator.Approximators
 			{
 				if (disposing)
 				{
-					// TODO: освободить управляемое состояние (управляемые объекты)
+					
 				}
 
-				// TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить метод завершения
-				// TODO: установить значение NULL для больших полей
 				Clear();
+				NativeDispose();
 				disposedValue = true;
 			}
 		}
 
-		// TODO: переопределить метод завершения, только если "Dispose(bool disposing)" содержит код для освобождения неуправляемых ресурсов
 		~LeastSquareApproximator()
 		{
-			// Не изменяйте этот код. Разместите код очистки в методе "Dispose(bool disposing)".
 			Dispose(disposing: false);
 		}
 
 		public void Dispose()
 		{
-			// Не изменяйте этот код. Разместите код очистки в методе "Dispose(bool disposing)".
 			Dispose(disposing: true);
 			GC.SuppressFinalize(this);
 		}

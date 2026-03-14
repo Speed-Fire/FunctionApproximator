@@ -9,7 +9,7 @@ void FreeMatrix(MatrixMxN& matrix) {
     free(matrix.matrix);
 }
 
-void FreeEqualitySolution(EqualitySolution& solution)
+void FreeArray(Array& solution)
 {
     free(solution.variables);
 }

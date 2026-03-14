@@ -38,13 +38,13 @@ namespace FunctionApproximator.ViewModels
 		{
 			if (!_errors.Contains(error))
 				_errors.Add(error);
-			CurrentError = _errors.FirstOrDefault();
+			CurrentError = error;
 		}
 
 		public void RemoveError(Notification error)
 		{
 			_errors.Remove(error);
-			CurrentError = _errors.FirstOrDefault();
+			CurrentError = _errors.LastOrDefault();
 		}
 	}
 }

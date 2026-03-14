@@ -29,54 +29,18 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Drawing step:"/>
+                <TextBlock Text="Sampling density:"/>
 
-                <Grid Grid.Row="2">
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="6"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <RadioButton GroupName="StepMode"
-                                 IsChecked="{Binding ApproximatorSettings.IsAutoDrawingStep}"
-                                 VerticalContentAlignment="Center"
-                                 Content="Automatic"/>
-
-                    <RadioButton x:Name="ManualStepRB"
-                                 Grid.Row="2"
-                                 GroupName="StepMode"
-                                 VerticalContentAlignment="Center"
-                                 HorizontalContentAlignment="Stretch">
-                        <StackPanel Orientation="Horizontal">
-
-                            <TextBlock Text="Manual:"
-                                       VerticalAlignment="Center"
-                                       Margin="0 0 5 0"/>
-
-                            <controls:AdvancedTextBox Text="{Binding ApproximatorSettings.DrawingStep}">
-                                <controls:AdvancedTextBox.Style>
-                                    <Style TargetType="controls:AdvancedTextBox"
-                                            BasedOn="{StaticResource Styles.AdvancedTextBox}">
-                                        <Setter Property="IsEnabled" Value="False"/>
-                                        <Setter Property="MinWidth" Value="30"/>
-                                        <Style.Triggers>
-
-                                            <DataTrigger Binding="{Binding ElementName=ManualStepRB,
-                                                                    Path=IsChecked}" Value="True">
-                                                <Setter Property="IsEnabled" Value="True"/>
-                                            </DataTrigger>
-
-                                        </Style.Triggers>
-                                    </Style>
-                                </controls:AdvancedTextBox.Style>
-                            </controls:AdvancedTextBox>
-
-                        </StackPanel>
-                    </RadioButton>
-
-                </Grid>
+                <controls:AdvancedTextBox
+                    Grid.Row="2"
+                    x:Name="DensityTB"
+                    Width="80"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Text="{Binding ApproximatorSettings.SamplingDensity, UpdateSourceTrigger=Explicit}"
+                    TextChanged="DensityTB_TextChanged"
+                    PreviewKeyDown="TextBox_PreviewKeyDown"
+                    PreviewTextInput="TextBox_PreviewTextInput"/>
 
                 <TextBlock Grid.Column="1"
                            Text="Degree of the polynomial:"/>
@@ -104,7 +68,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Text="Polynom:"/>
+                <TextBlock Text="Polynomial:"/>
 
                 <controls:AdvancedTextBox
                     x:Name="polTB"

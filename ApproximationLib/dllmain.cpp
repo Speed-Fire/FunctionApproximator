@@ -8,55 +8,103 @@
 #include "Structs.h"
 #include "Jem.h"
 
+struct SolutionDoubleBuffer {
+    bool lastFront = false;
+    Array* front = nullptr;
+    Array* back = nullptr;
+};
+
+bool g_initialized = false;
+int g_samplingDensity = 1000;
+SolutionDoubleBuffer g_solutions = SolutionDoubleBuffer();
+
 extern "C" {
-    _declspec(dllexport) EqualitySolution CreateLskPolynom(double* data, size_t length, int degree);
-    _declspec(dllexport) EqualitySolution DrawGraph(const EqualitySolution& solution,
-        double from, double to, double step);
+    _declspec(dllexport) void Initialize(int samplingDensity);
+    _declspec(dllexport) void Dispose();
+    _declspec(dllexport) Array CreateLsPolynom(const Array& data, int degree);
+    _declspec(dllexport) Array DrawGraph(const Array& solution, double from, double to);
+    _declspec(dllexport) void SetSamplingDensity(int samplingDensity);
 }
 
+Array& GetBuffer();
 MatrixMxN CreateCoefficientsMatrix(Point*& points, size_t pointCount, int degree);
-inline double ApproximationFunction(double x);
 
-EqualitySolution CreateLskPolynom(double* data, size_t length, int degree) {
-    size_t pointCount = length / 2;
-    Point* points = reinterpret_cast<Point*>(data);
+void Initialize(int samplingDensity)
+{
+    if (g_initialized)
+        return;
+
+    int length = samplingDensity * 2;
+    g_samplingDensity = samplingDensity;
+    g_solutions.front = new Array();
+    g_solutions.back = new Array();
+    g_solutions.front->length = length;
+    g_solutions.front->variables = (double*)malloc(sizeof(double) * length);
+    g_solutions.back->length = length;
+    g_solutions.back->variables = (double*)malloc(sizeof(double) * length);
+}
+
+void Dispose()
+{
+    FreeArray(*g_solutions.front);
+    FreeArray(*g_solutions.back);
+    delete g_solutions.front;
+    delete g_solutions.back;
+    g_initialized = false;
+}
+
+Array CreateLsPolynom(const Array& data, int degree) {
+    size_t pointCount = data.length / 2;
+    Point* points = reinterpret_cast<Point*>(data.variables);
 
     MatrixMxN derivationsMatrix = CreateCoefficientsMatrix(points, pointCount, degree);
-    EqualitySolution solution = SolveMatrix(derivationsMatrix);
-
+    Array solution = SolveMatrix(derivationsMatrix);
+    
     FreeMatrix(derivationsMatrix);
 
     return solution;
 }
 
-EqualitySolution DrawGraph(const EqualitySolution& solution,
-    double from, double to, double step) {
-    int length = ((int)std::ceil(std::ceil(std::abs(to - from)) / step)) * 2;
+Array DrawGraph(const Array& solution, double from, double to) {
 
-    EqualitySolution graph;
-    graph.variables = (double*)malloc(sizeof(double) * length);
-    graph.length = length;
+    Array& buffer = GetBuffer();
+    double step = std::ceil(std::abs(to - from)) / g_samplingDensity;
+    int length = buffer.length;
 
     double x = from;
     for (int i = 0; i < length - 1; i += 2, x += step) {
         double y = solution.variables[0];
-        double apprValue = ApproximationFunction(x);
+        double apprValue = x;
 
         double tmp = apprValue;
         for (int j = 1; j < solution.length; j++, tmp *= apprValue) {
             y += solution.variables[j] * tmp;
         }
 
-        graph.variables[i] = x;
-        graph.variables[i + 1] = y;
+        buffer.variables[i] = x;
+        buffer.variables[i + 1] = y;
     }
 
-    return graph;
+    return buffer;
 }
 
-inline double ApproximationFunction(double x)
+void SetSamplingDensity(int samplingDensity)
 {
-    return x;
+    if (samplingDensity == g_samplingDensity)
+        return;
+
+    Dispose();
+    Initialize(samplingDensity);
+}
+
+Array& GetBuffer()
+{
+    bool lastFront = g_solutions.lastFront;
+    g_solutions.lastFront = !lastFront;
+    if (lastFront)
+        return *g_solutions.back;
+    else
+        return *g_solutions.front;
 }
 
 MatrixMxN CreateCoefficientsMatrix(Point*& points, size_t pointCount, int degree) {
@@ -67,7 +115,7 @@ MatrixMxN CreateCoefficientsMatrix(Point*& points, size_t pointCount, int degree
     mainCoefficients[0] = (double)pointCount;
 
     for (int i = 0; i < pointCount; i++) {
-        double x = ApproximationFunction(points[i].x);
+        double x = points[i].x;
 
         double tmp = x;
         for (int j = 1; j < unknownCount * 2 - 1; j++, tmp *= x) {

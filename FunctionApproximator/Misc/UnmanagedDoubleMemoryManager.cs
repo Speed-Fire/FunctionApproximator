@@ -10,9 +10,9 @@ namespace FunctionApproximator.Misc
 	public class UnmanagedDoubleMemoryManager : MemoryManager<double>
 	{
 		private readonly IntPtr _handle;
-		private readonly int _length;
+		private readonly nuint _length;
 
-		public UnmanagedDoubleMemoryManager(nint handle, int length)
+		public UnmanagedDoubleMemoryManager(nint handle, nuint length)
 		{
 			_handle = handle;
 			_length = length;
@@ -22,13 +22,13 @@ namespace FunctionApproximator.Misc
 		{
 			unsafe
 			{
-				return new Span<double>((void*)_handle, _length);
+				return new Span<double>((void*)_handle, (int)_length);
 			}
 		}
 
 		public override MemoryHandle Pin(int elementIndex = 0)
 		{
-			if(elementIndex < 0 || elementIndex >= _length)
+			if(elementIndex < 0 || elementIndex >= (int)_length)
 				throw new ArgumentOutOfRangeException(nameof(elementIndex));
 
 			IntPtr pointer = _handle + elementIndex * sizeof(double);

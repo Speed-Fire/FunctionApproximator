@@ -2,7 +2,7 @@
 
 //#include "Structs.h"
 
-struct EqualitySolution;
+struct Array;
 struct MatrixMxN;
 
-EqualitySolution SolveMatrix(MatrixMxN& matrix);
+Array SolveMatrix(MatrixMxN& matrix);

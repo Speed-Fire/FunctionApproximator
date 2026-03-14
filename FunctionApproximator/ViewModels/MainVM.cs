@@ -45,6 +45,10 @@ namespace FunctionApproximator.ViewModels
 
 			#region Event listeners
 
+			ApproximatorSettings.SamplingDensityChanged += (range) =>
+			{
+				Approximator.SetSamplingDensity(range);
+			};
 			DataChecker.PropertyChanged += (s, e) =>
 			{
 				PlotGraphCommand.NotifyCanExecuteChanged();
@@ -76,6 +80,7 @@ namespace FunctionApproximator.ViewModels
 		private void OnLoaded()
 		{
 			GraphPlotter.Initialize();
+			Approximator.Initialize(ApproximatorSettings.Density);
 		}
 
 		#endregion

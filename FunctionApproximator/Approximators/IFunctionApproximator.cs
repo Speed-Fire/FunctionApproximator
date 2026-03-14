@@ -11,8 +11,10 @@ namespace FunctionApproximator.Approximators
         IReadOnlyList<double> PolynomCoefficients { get; }
         int PolynomialDegree { get; set; }
 
+        void Initialize(int samplingDensity);
+        void SetSamplingDensity(int samplingDensity);
 		void Approximate(double[] data);
-        Memory<double> Draw(double from, double to, double step);
+        Memory<double> Draw(double from, double to);
         void Clear();
     }
 }

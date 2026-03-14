@@ -87,6 +87,7 @@ namespace FunctionApproximator.ViewModels
 				Position = position,
 				Minimum = minimum,
 				Maximum = maximum,
+				MinimumRange = 0.01,
 				MajorGridlineStyle = LineStyle.Solid,
 				MinorGridlineStyle = LineStyle.Solid,
 				MinorGridlineColor = minorGridlineColor,
@@ -142,7 +143,7 @@ namespace FunctionApproximator.ViewModels
 		{
 			if (e.ChangeType != AxisChangeTypes.Zoom)
 				return;
-
+			
 			SetXWindowBorders(_xAxis.ClipMinimum, _xAxis.ClipMaximum);
 			ModelWindowBordersChanged?.Invoke(WindowLeftBorder, WindowRightBorder);
 		}

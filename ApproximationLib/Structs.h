@@ -11,14 +11,14 @@ struct MatrixMxN {
     int columnCount;
 };
 
-void FreeMatrix(MatrixMxN& matrix);
-
 extern "C" {
 
-    struct _declspec(dllexport) EqualitySolution {
+    struct _declspec(dllexport) Array {
         double* variables;
-        int length;
+        size_t length;
     };
 
-    _declspec(dllexport) void FreeEqualitySolution(EqualitySolution& solution);
+    _declspec(dllexport) void FreeArray(Array& solution);
 }
+
+void FreeMatrix(MatrixMxN& matrix);

@@ -10,31 +10,35 @@ using System.Windows;
 
 namespace FunctionApproximator.ViewModels
 {
-	internal partial class ApproximatorSettingsVM : ObservableValidator
+	public partial class ApproximatorSettingsVM : ObservableValidator
 	{
 		[ObservableProperty]
-		[MinLength(1)]
+		[NotifyDataErrorInfo]
 		[CustomValidation(typeof(ApproximatorSettingsVM), nameof(ValidateInt))]
 		private string _polynomialDegree = "1";
 
 		[ObservableProperty]
-		private string _drawingStep = "0.1";
-
-		[ObservableProperty]
-		private bool _isAutoDrawingStep = false;
-
-		[ObservableProperty]
 		private bool _invalidDegree;
 
+		[ObservableProperty]
+		[NotifyDataErrorInfo]
+		[CustomValidation(typeof(ApproximatorSettingsVM), nameof(ValidateInt))]
+		private string _samplingDensity = "400";
+
+		[ObservableProperty]
+		private bool _invalidSamplingDensity;
+
 		public int Degree => int.Parse(PolynomialDegree);
+		public int Density => int.Parse(SamplingDensity);
+
+		public event Action<int>? SamplingDensityChanged;
 
 		public ApproximatorSettingsVM()
 		{
-			IsAutoDrawingStep = true;
-
 			this.ErrorsChanged += (s, e) =>
 			{
 				InvalidDegree = this.GetErrors(nameof(PolynomialDegree)).Any();
+				InvalidSamplingDensity = this.GetErrors(nameof(SamplingDensity)).Any();
 			};
 		}
 
@@ -43,34 +47,16 @@ namespace FunctionApproximator.ViewModels
 			if (!int.TryParse(value, out var degree))
 				return new("Incorrect format.");
 			if (degree < 1)
-				return new("Polynom degree must be higher than 0.");
+				return new("Value must be higher than 0.");
 			return ValidationResult.Success!;
 		}
 
-		#region Drawing step
-
-		public double GetDrawingStep(double left, double right)
+		partial void OnSamplingDensityChanged(string value)
 		{
-			if (IsAutoDrawingStep)
-				return GetStep(left, right);
-			else
-				return double.Parse(DrawingStep);
+			if (InvalidSamplingDensity)
+				return;
+
+			SamplingDensityChanged?.Invoke(Density);
 		}
-
-		private static double GetStep(double left, double right)
-		{
-			var diff = (long)Math.Ceiling(Math.Abs(left - right));
-			var step = 0.1;
-
-			while (diff > 100)
-			{
-				diff /= 10;
-				step *= 10;
-			}
-
-			return step;
-		}
-
-		#endregion
 	}
 }

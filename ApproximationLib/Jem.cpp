@@ -8,7 +8,7 @@
 
 void DoJemStep(MatrixMxN& matrix, int row, int column);
 
-EqualitySolution SolveMatrix(MatrixMxN& matrix)
+Array SolveMatrix(MatrixMxN& matrix)
 {
     int length = std::min(matrix.columnCount, matrix.rowCount);
     std::set<double> usedColumns = std::set<double>();
@@ -27,7 +27,7 @@ EqualitySolution SolveMatrix(MatrixMxN& matrix)
         DoJemStep(matrix, i, column);
     }
 
-    EqualitySolution solution;
+    Array solution;
     solution.variables = (double*)malloc(sizeof(double) * length);
     solution.length = length;
 

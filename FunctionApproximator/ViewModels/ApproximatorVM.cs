@@ -26,6 +26,16 @@ namespace FunctionApproximator.ViewModels
 			_settings = settings;
 		}
 
+		public void Initialize(int samplingDensity)
+		{
+			_approximator.Initialize(samplingDensity);
+		}
+
+		public void SetSamplingDensity(int samplingDensity)
+		{
+			_approximator.SetSamplingDensity(samplingDensity);
+		}
+
 		public void Approximate(double[] data)
 		{
 			if (_settings.InvalidDegree)
@@ -39,8 +49,7 @@ namespace FunctionApproximator.ViewModels
 
 		public Memory<double> DrawGraph(double left, double right)
 		{
-			var step = _settings.GetDrawingStep(left, right);
-			return _approximator.Draw(left, right, step);
+			return _approximator.Draw(left, right);
 		}
 
 		public void Clear()

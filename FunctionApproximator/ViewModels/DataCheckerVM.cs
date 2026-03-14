@@ -35,16 +35,22 @@ namespace FunctionApproximator.ViewModels
 
 		private void DataChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
 		{
+			// validation checks calls PropertyChanged as well for HasErrors, but at that moment
+			// VM's error collection is not yet updated, so it can break wished behavior 
+			// if not ignored.
+			if (e.PropertyName == "HasErrors")
+				return;
 			UpdateReadyness();
 		}
 
 		private void UpdateReadyness()
 		{
 			IsReady = 
-				CheckPointsCorrectness() &
+				(CheckPointsCorrectness() &
 				CheckPointsSameX() &
 				CheckAscendendXOrder() &
 				CheckApproximatorDegreeCorrectness() &
+				CheckSamplingDensityCorrectness()) &&
 				CheckPointCountAndDegree();
 		}
 
@@ -80,6 +86,13 @@ namespace FunctionApproximator.ViewModels
 		{
 			var isCorrect = _pointData.PointCount >= _approxSettings.Degree + 1;
 			SendError(Notifications.INVALID_POINT_COUNT, isCorrect);
+			return isCorrect;
+		}
+
+		private bool CheckSamplingDensityCorrectness()
+		{
+			var isCorrect = !_approxSettings.InvalidSamplingDensity;
+			SendError(Notifications.INVALID_SAMPLING_DENSITY, isCorrect);
 			return isCorrect;
 		}
 

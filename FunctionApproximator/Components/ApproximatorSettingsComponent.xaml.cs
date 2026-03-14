@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace FunctionApproximator.Components
 {
@@ -21,10 +22,26 @@ namespace FunctionApproximator.Components
     /// </summary>
     public partial class ApproximatorSettingsComponent : UserControl
     {
-        public ApproximatorSettingsComponent()
+		private readonly DispatcherTimer _debounceTimer = new();
+
+		public ApproximatorSettingsComponent()
         {
             InitializeComponent();
-        }
+
+			_debounceTimer.Interval = TimeSpan.FromMilliseconds(500);
+			_debounceTimer.Tick += (s, e) =>
+			{
+				_debounceTimer.Stop();
+				var binding = DensityTB.GetBindingExpression(TextBox.TextProperty);
+				binding?.UpdateSource();
+			};
+		}
+
+		private void DensityTB_TextChanged(object sender, TextChangedEventArgs e)
+		{
+			_debounceTimer.Stop();
+			_debounceTimer.Start();
+		}
 
 		private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
 		{
@@ -43,5 +60,5 @@ namespace FunctionApproximator.Components
 
         [GeneratedRegex(@"^[1-9]\d*$")]
         private static partial Regex PositiveIntegerRegex();
-    }
+	}
 }
