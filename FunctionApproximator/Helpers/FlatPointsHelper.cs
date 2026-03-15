@@ -16,7 +16,7 @@ namespace FunctionApproximator.Helpers
 			var minY = double.MaxValue;
 			var maxY = double.MinValue;
 
-			for(int i = 0; i < points.Length / 2; i += 2)
+			for(int i = 0; i < points.Length; i += 2)
 			{
 				var x = points[i];
 				var y = points[i + 1];
